@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Deboleena</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@3.3.0/tsparticles.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Montserrat:wght@300;400;500;600&display=swap');
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Montserrat', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        .ambient-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60vw;
+            height: 60vw;
+            max-width: 800px;
+            max-height: 800px;
+            background: radial-gradient(circle, rgba(29, 78, 216, 0.15) 0%, rgba(0,0,0,0) 70%);
+            z-index: -1;
+            animation: pulseGlow 8s infinite alternate ease-in-out;
+        }
+
+        @keyframes pulseGlow {
+            0% { opacity: 0.3; transform: translate(-50%, -50%) scale(0.8); }
+            100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        #tsparticles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 40px;
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            z-index: 10;
+            position: relative;
+        }
+
+        .glass-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .app-section {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            overflow-y: auto; 
+            overflow-x: hidden;
+            z-index: 10;
+            opacity: 0;
+            display: none;
+            transition: opacity 1.5s ease-in-out;
+        }
+
+        .app-section.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .cinematic-text {
+            font-family: 'Cinzel', serif;
+        }
+        
+        .text-glow-strong { text-shadow: 0 0 15px rgba(255, 255, 255, 0.6), 0 0 30px rgba(255, 255, 255, 0.3), 0 0 45px rgba(255, 255, 255, 0.1); }
+        .text-glow-subtle { text-shadow: 0 0 10px rgba(255, 255, 255, 0.3); }
+
+        .fade-in { opacity: 0; transform: translateY(20px); animation: fadeUp 2.5s forwards cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .delay-1 { animation-delay: 0.5s; }
+        .delay-2 { animation-delay: 2.5s; }
+        .delay-3 { animation-delay: 4.5s; }
+        .delay-btn { animation-delay: 6.5s; }
+
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+        .reveal-on-scroll {
+            opacity: 0;
+            transform: translateY(60px);
+            transition: opacity 1.5s cubic-bezier(0.2, 0.8, 0.2, 1), transform 1.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        
+        .reveal-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .flip-card { background-color: transparent; width: 100%; height: 250px; perspective: 1000px; cursor: pointer; }
+        .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.8s; transform-style: preserve-3d; }
+        .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; padding: 2rem; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .flip-card-front { background: rgba(20, 20, 25, 0.7); backdrop-filter: blur(10px); }
+        .flip-card-back { background: rgba(40, 40, 50, 0.9); color: white; transform: rotateY(180deg); box-shadow: 0 0 30px rgba(255, 255, 255, 0.1); }
+        
+        /* Updated #btn-no transition to only animate top/left, but not position initially */
+        #btn-no { transition: top 0.3s cubic-bezier(0.25, 1, 0.5, 1), left 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
+
+        /* Chick Styling */
+        .chick-bubble {
+            position: absolute;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            color: #000;
+            padding: 10px 15px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-align: center;
+            white-space: nowrap;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .chick-bubble::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -8px;
+            border-width: 8px;
+            border-style: solid;
+            border-color: rgba(255, 255, 255, 0.9) transparent transparent transparent;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="tsparticles"></div>
+
+    <audio id="bg-audio" loop>
+        <source src="song.mp3" type="audio/mpeg">
+    </audio>
+
+    <section id="phase-1" class="app-section active flex-col justify-center items-center text-center p-4">
+        <div class="ambient-glow"></div>
+        <h2 class="text-xl md:text-2xl font-light tracking-[0.4em] text-gray-400 mb-6 fade-in delay-1 uppercase text-glow-subtle">Of all the places in the universe...</h2>
+        <h1 class="cinematic-text text-5xl md:text-7xl lg:text-8xl font-bold tracking-wider mb-6 text-white fade-in delay-2 text-glow-strong">
+            I found my home in you.
+        </h1>
+        <h2 class="text-xl md:text-2xl font-light text-amber-100/70 mb-8 fade-in delay-3 tracking-widest italic text-glow-subtle">
+            Ready to relive our favorite moments, Bubu?
+        </h2>
+
+        <div class="relative cursor-pointer fade-in delay-btn mt-6 z-20" onclick="showChickMessage()">
+            <div id="chick-msg" class="chick-bubble" style="opacity: 1;">
+                Click me!
+            </div>
+            <svg width="140" height="140" viewBox="0 0 100 100" class="drop-shadow-[0_0_15px_rgba(255,215,0,0.3)] hover:scale-110 transition-transform">
+                <circle cx="50" cy="50" r="40" fill="#FFD700" />
+                <ellipse cx="15" cy="60" rx="10" ry="20" fill="#FFC107" transform="rotate(-30 15 60)" />
+                <ellipse cx="85" cy="60" rx="10" ry="20" fill="#FFC107" transform="rotate(30 85 60)" />
+                <polygon points="40,55 60,55 50,68" fill="#FF8C00" />
+                <circle cx="35" cy="40" r="10" fill="white" />
+                <circle cx="65" cy="40" r="10" fill="white" />
+                <circle id="pupil-left" cx="35" cy="40" r="4" fill="black" />
+                <circle id="pupil-right" cx="65" cy="40" r="4" fill="black" />
+            </svg>
+        </div>
+
+        <button class="glass-btn fade-in delay-btn mt-10" onclick="nextPhase('phase-1', 'phase-2')">eat your future husband instead</button>
+    </section>
+
+    <section id="phase-2" class="app-section flex-col justify-center items-center p-4">
+        <h2 class="text-3xl font-light mb-8 tracking-widest text-white text-glow-subtle">Listen closely...</h2>
+        <div class="w-full max-w-3xl aspect-video bg-gray-900 border border-gray-700 rounded-xl flex items-center justify-center shadow-[0_0_50px_rgba(0,0,0,0.8)] relative overflow-hidden mb-12">
+            <p class="text-gray-500 font-light">[ Your Video Message Will Play Here ]</p>
+        </div>
+        <button class="glass-btn" onclick="startMemoryJourney()">Take My Hand</button>
+    </section>
+
+    <section id="phase-3" class="app-section flex-col bg-transparent">
+        <div class="w-full max-w-7xl mx-auto py-24 md:py-32 px-6 md:px-12 space-y-32 md:space-y-40">
+
+            <div class="reveal-on-scroll flex flex-col md:flex-row items-center gap-10 md:gap-16">
+                <div class="w-full md:w-1/2 flex justify-center md:justify-start">
+                    <img src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=1600" class="w-full max-w-xl aspect-[4/3] object-cover rounded-xl shadow-[0_0_40px_rgba(255,255,255,0.05)] border border-white/10">
+                </div>
+                <div class="w-full md:w-1/2 flex justify-center md:justify-start text-center md:text-left">
+                    <div class="max-w-md">
+                        <h3 class="cinematic-text text-3xl md:text-4xl mb-4 text-amber-50 font-semibold text-glow-subtle">A Glimpse of Forever</h3>
+                        <p class="text-xl font-light text-gray-300 leading-relaxed">Just a random day that somehow turned into one of my favorites, simply because you were there beside me.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reveal-on-scroll flex flex-col md:flex-row-reverse items-center gap-10 md:gap-16">
+                <div class="w-full md:w-1/2 flex justify-center md:justify-end">
+                    <img src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=1600" class="w-full max-w-xl aspect-[4/3] object-cover rounded-xl shadow-[0_0_40px_rgba(255,255,255,0.05)] border border-white/10">
+                </div>
+                <div class="w-full md:w-1/2 flex justify-center md:justify-end text-center md:text-right">
+                    <div class="max-w-md">
+                        <h3 class="cinematic-text text-3xl md:text-4xl mb-4 text-amber-50 font-semibold text-glow-subtle">That Specific Smile</h3>
+                        <p class="text-xl font-light text-gray-300 leading-relaxed">The one you try to hide but can't. It's the exact smile that makes the whole world stop for a second.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reveal-on-scroll flex flex-col md:flex-row items-center gap-10 md:gap-16">
+                <div class="w-full md:w-1/2 flex justify-center md:justify-start">
+                    <img src="https://images.unsplash.com/photo-1606286782294-81e13b8600d8?q=80&w=1600" class="w-full max-w-xl aspect-[4/3] object-cover rounded-xl shadow-[0_0_40px_rgba(255,255,255,0.05)] border border-white/10">
+                </div>
+                <div class="w-full md:w-1/2 flex justify-center md:justify-start text-center md:text-left">
+                    <div class="max-w-md">
+                        <h3 class="cinematic-text text-3xl md:text-4xl mb-4 text-amber-50 font-semibold text-glow-subtle">Lost in the Moment</h3>
+                        <p class="text-xl font-light text-gray-300 leading-relaxed">No plans, no rushing. Just us existing together in our own bubble, and me realizing how lucky I am.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reveal-on-scroll flex flex-col md:flex-row-reverse items-center gap-10 md:gap-16">
+                <div class="w-full md:w-1/2 flex justify-center md:justify-end">
+                    <img src="https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?q=80&w=1600" class="w-full max-w-xl aspect-[4/3] object-cover rounded-xl shadow-[0_0_40px_rgba(255,255,255,0.05)] border border-white/10">
+                </div>
+                <div class="w-full md:w-1/2 flex justify-center md:justify-end text-center md:text-right">
+                    <div class="max-w-md">
+                        <h3 class="cinematic-text text-3xl md:text-4xl mb-4 text-amber-50 font-semibold text-glow-subtle">A Chaotic Perfection</h3>
+                        <p class="text-xl font-light text-gray-300 leading-relaxed">Even when things don't go as planned, as long as I get to figure it out with you, it's perfect.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reveal-on-scroll py-20 flex flex-col justify-center items-center text-center">
+                <h2 class="text-3xl font-light mb-8 text-white text-glow-subtle">But a future together isn't just about the good times...</h2>
+                <button class="glass-btn" onclick="nextPhase('phase-3', 'phase-4')">See My Promises</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="phase-4" class="app-section flex-col justify-center items-center p-4 md:p-12">
+        <div class="w-full max-w-5xl mx-auto flex flex-col items-center py-12">
+            <h2 class="cinematic-text text-4xl md:text-5xl font-light mb-4 text-center tracking-wide text-white text-glow-subtle">Whatever you fear...</h2>
+            <p class="text-xl text-gray-400 mb-12 text-center font-light">Click to open</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 w-full mb-12">
+                <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front flex-col">
+                            <span class="text-3xl mb-2 text-gray-500">?</span>
+                            <h3 class="text-2xl text-white">When you fear<br>the unknown</h3>
+                        </div>
+                        <div class="flip-card-back flex-col">
+                            <p class="text-lg font-light leading-relaxed">I will hold your hand and walk into it with you. We will figure it out together.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front flex-col">
+                            <span class="text-3xl mb-2 text-gray-500">?</span>
+                            <h3 class="text-2xl text-white">When you feel<br>you aren't enough</h3>
+                        </div>
+                        <div class="flip-card-back flex-col">
+                            <p class="text-lg font-light leading-relaxed">I will spend every day reminding you how incredibly perfect you are to me.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flip-card" onclick="this.classList.toggle('flipped')">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front flex-col">
+                            <span class="text-3xl mb-2 text-gray-500">?</span>
+                            <h3 class="text-2xl text-white">When life gets<br>overwhelming</h3>
+                        </div>
+                        <div class="flip-card-back flex-col">
+                            <p class="text-lg font-light leading-relaxed">I will be your safe place to land. Always.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="glass-btn mt-8" onclick="nextPhase('phase-4', 'phase-5')">The Final Question</button>
+        </div>
+    </section>
+
+    <section id="phase-5" class="app-section flex-col justify-center items-center p-4">
+        <h1 class="cinematic-text text-5xl md:text-7xl font-bold mb-16 text-center text-white text-glow-strong px-4" id="proposal-text">Will you be my bubu darling forever?</h1>
+        
+        <div class="relative w-full max-w-xl h-64 flex justify-center items-center gap-6" id="button-container">
+            <button id="btn-yes" class="glass-btn z-10 bg-white text-black hover:bg-gray-200" style="padding: 15px 60px;">Yes</button>
+            <button id="btn-no" class="glass-btn border-gray-600 text-gray-400">No</button>
+        </div>
+
+        <div id="love-letter" class="absolute inset-0 flex flex-col justify-center items-center p-6 md:p-12 opacity-0 pointer-events-none transition-opacity duration-[2000ms] z-20">
+            <div class="max-w-3xl w-full bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-8 md:p-12 text-left shadow-2xl max-h-[80vh] overflow-y-auto">
+                <h2 class="cinematic-text text-3xl font-light text-amber-100 mb-6 text-glow-subtle">My dearest Bubu,</h2>
+                <div class="space-y-6 text-lg text-gray-200 font-light leading-relaxed">
+                    <p>If you are reading this, it means you just made me the happiest man in the world.</p>
+                    <p>I didn't just want to ask the question; I wanted to leave you with a reminder of exactly why I love you so much. It isn't just one thing. It's every single side of you. The way your eyes light up when you talk about something you love, the way you care for the people around you, and even the moments when you are feeling stubborn or vulnerable.</p>
+                    <p>Every new side of you I discovered didn't just make me know you better—it made me love you deeper. You are my greatest adventure and my quietest peace.</p>
+                    <p>[ Space for you to add a specific memory, like: "I still think about that time we..." ]</p>
+                    <p>I promise to spend the rest of my life learning new sides of you, and loving every single one of them. Thank you for choosing me.</p>
+                    <p class="pt-4 text-xl text-amber-50 cinematic-text text-glow-subtle">Forever yours,<br>Ankan</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // --- Chick Eye Tracking Logic ---
+        document.addEventListener('mousemove', (e) => {
+            const leftEye = document.getElementById('pupil-left');
+            const rightEye = document.getElementById('pupil-right');
+            
+            if(!leftEye || !rightEye) return;
+            
+            function movePupil(pupil, baseCx, baseCy) {
+                const svg = pupil.closest('svg');
+                if(!svg) return;
+                
+                const rect = svg.getBoundingClientRect();
+                const eyeCenterX = rect.left + (baseCx / 100) * rect.width;
+                const eyeCenterY = rect.top + (baseCy / 100) * rect.height;
+                
+                const dx = e.clientX - eyeCenterX;
+                const dy = e.clientY - eyeCenterY;
+                const angle = Math.atan2(dy, dx);
+                
+                const maxDist = 5; 
+                const px = baseCx + Math.cos(angle) * maxDist;
+                const py = baseCy + Math.sin(angle) * maxDist;
+                
+                pupil.setAttribute('cx', px);
+                pupil.setAttribute('cy', py);
+            }
+            
+            movePupil(leftEye, 35, 40);
+            movePupil(rightEye, 65, 40);
+        });
+
+        // --- Chick Click Message Logic ---
+        function showChickMessage() {
+            const msg = document.getElementById('chick-msg');
+            msg.innerHTML = "please dont make me fried chick<br>click on the other button";
+            
+            // Keeps it visible if it was fading out
+            msg.style.opacity = '1';
+            
+            // Hide after 3.5 seconds
+            setTimeout(() => {
+                msg.style.opacity = '0';
+            }, 3500);
+        }
+
+        // --- Original Site Logic ---
+        tsParticles.load("tsparticles", {
+            background: { color: { value: "transparent" } },
+            fpsLimit: 60,
+            particles: {
+                color: { value: "#ffffff" },
+                links: { enable: false },
+                move: { direction: "none", enable: true, outModes: { default: "out" }, random: true, speed: 0.3, straight: false },
+                number: { density: { enable: true, area: 800 }, value: 80 },
+                opacity: { animation: { enable: true, speed: 0.5, minimumValue: 0.1 }, value: { min: 0.1, max: 0.4 } },
+                shape: { type: "circle" },
+                size: { value: { min: 1, max: 2.5 } },
+            },
+            detectRetina: true,
+        });
+
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        function initScrollAnimations() {
+            document.querySelectorAll('.reveal-on-scroll').forEach((el) => {
+                observer.observe(el);
+            });
+        }
+
+        function nextPhase(currentId, nextId) {
+            const current = document.getElementById(currentId);
+            const next = document.getElementById(nextId);
+
+            if(currentId === 'phase-1') {
+                document.querySelector('.ambient-glow').style.opacity = '0';
+            }
+
+            current.style.opacity = '0';
+            
+            setTimeout(() => {
+                current.classList.remove('active');
+                next.classList.add('active');
+                void next.offsetWidth;
+                next.style.opacity = '1';
+
+                next.scrollTop = 0; 
+
+                if(nextId === 'phase-3') {
+                    initScrollAnimations();
+                }
+            }, 1000); 
+        }
+
+        function startMemoryJourney() {
+            const audio = document.getElementById('bg-audio');
+            audio.volume = 0.5;
+            audio.play().catch(e => console.log("Add a valid mp3 file to play background music."));
+            nextPhase('phase-2', 'phase-3');
+        }
+
+        const btnNo = document.getElementById('btn-no');
+        const btnYes = document.getElementById('btn-yes');
+        const btnContainer = document.getElementById('button-container');
+
+        // New Running Away Logic
+        btnNo.addEventListener('mouseover', () => {
+            // First time hovered, swap to absolute positioning so it breaks out of the flex container
+            if(btnNo.style.position !== 'absolute') {
+                btnNo.style.position = 'absolute';
+            }
+            
+            const containerRect = btnContainer.getBoundingClientRect();
+            const btnRect = btnNo.getBoundingClientRect();
+            
+            // Calculate maximum allowed X and Y coordinates within the container
+            const maxX = containerRect.width - btnRect.width;
+            const maxY = containerRect.height - btnRect.height;
+            
+            // Generate random positions ensuring it stays inside the boundary box
+            const randomX = Math.max(0, Math.floor(Math.random() * maxX));
+            const randomY = Math.max(0, Math.floor(Math.random() * maxY)); 
+            
+            btnNo.style.left = `${randomX}px`;
+            btnNo.style.top = `${randomY}px`;
+        });
+
+        btnYes.addEventListener('click', () => {
+            const proposalText = document.getElementById('proposal-text');
+            const loveLetter = document.getElementById('love-letter');
+            
+            btnContainer.style.display = 'none';
+            proposalText.style.transition = "opacity 1.5s ease";
+            proposalText.style.opacity = "0";
+
+            setTimeout(() => {
+                proposalText.style.display = "none";
+                loveLetter.classList.remove('pointer-events-none');
+                loveLetter.style.opacity = "1";
+            }, 1500);
+
+            const particles = tsParticles.domItem(0);
+            if(particles) {
+                particles.options.particles.move.speed = 8;
+                particles.refresh();
+            }
+
+            var duration = 8 * 1000;
+            var animationEnd = Date.now() + duration;
+            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
+
+            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+
+            var interval = setInterval(function() {
+                var timeLeft = animationEnd - Date.now();
+                if (timeLeft <= 0) return clearInterval(interval);
+
+                var particleCount = 50 * (timeLeft / duration);
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+            }, 250);
+        });
+    </script>
+</body>
+</html>
