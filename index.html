@@ -126,10 +126,8 @@
         .flip-card-front { background: rgba(20, 20, 25, 0.7); backdrop-filter: blur(10px); }
         .flip-card-back { background: rgba(40, 40, 50, 0.9); color: white; transform: rotateY(180deg); box-shadow: 0 0 30px rgba(255, 255, 255, 0.1); }
         
-        /* Updated #btn-no transition to only animate top/left, but not position initially */
         #btn-no { transition: top 0.3s cubic-bezier(0.25, 1, 0.5, 1), left 0.3s cubic-bezier(0.25, 1, 0.5, 1); }
 
-        /* Chick Styling */
         .chick-bubble {
             position: absolute;
             bottom: 110%;
@@ -157,7 +155,6 @@
             border-style: solid;
             border-color: rgba(255, 255, 255, 0.9) transparent transparent transparent;
         }
-
     </style>
 </head>
 <body>
@@ -198,9 +195,15 @@
     </section>
 
     <section id="phase-2" class="app-section flex-col justify-center items-center p-4">
-        <h2 class="text-3xl font-light mb-8 tracking-widest text-white text-glow-subtle">Listen closely...</h2>
-        <div class="w-full max-w-3xl aspect-video bg-gray-900 border border-gray-700 rounded-xl flex items-center justify-center shadow-[0_0_50px_rgba(0,0,0,0.8)] relative overflow-hidden mb-12">
-            <p class="text-gray-500 font-light">[ Your Video Message Will Play Here ]</p>
+        <h2 class="text-3xl font-light mb-8 tracking-widest text-white text-glow-subtle uppercase">Listen closely...</h2>
+        <div class="w-full max-w-3xl aspect-video bg-gray-900 border border-gray-700 rounded-xl shadow-[0_0_50px_rgba(0,0,0,0.8)] relative overflow-hidden mb-12">
+            <video id="memory-video" class="w-full h-full object-cover" playsinline>
+                <source src="lv_0_20260410155506.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <button id="video-mute-btn" class="absolute bottom-4 right-4 bg-black/50 p-2 rounded-full text-white backdrop-blur-md border border-white/20 z-20" onclick="toggleMute()">
+                <svg id="mute-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line></svg>
+            </button>
         </div>
         <button class="glass-btn" onclick="startMemoryJourney()">Take My Hand</button>
     </section>
@@ -303,7 +306,7 @@
                     </div>
                 </div>
             </div>
-            <button class="glass-btn mt-8" onclick="nextPhase('phase-4', 'phase-5')">I will never leave you and idk but this is the last thing i want to ask you</button>
+            <button class="glass-btn mt-8" onclick="nextPhase('phase-4', 'phase-5')">I have one last thing to ask you</button>
         </div>
     </section>
 
@@ -331,149 +334,125 @@
     </section>
 
     <script>
-        // --- Chick Eye Tracking Logic ---
+        // --- Video and Controls ---
+        const video = document.getElementById('memory-video');
+        const muteIcon = document.getElementById('mute-icon');
+
+        function toggleMute() {
+            video.muted = !video.muted;
+            muteIcon.innerHTML = video.muted ? 
+                `<path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>` : 
+                `<path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>`;
+        }
+
+        // --- Chick Eye Tracking ---
         document.addEventListener('mousemove', (e) => {
             const leftEye = document.getElementById('pupil-left');
             const rightEye = document.getElementById('pupil-right');
-            
             if(!leftEye || !rightEye) return;
             
             function movePupil(pupil, baseCx, baseCy) {
                 const svg = pupil.closest('svg');
                 if(!svg) return;
-                
                 const rect = svg.getBoundingClientRect();
                 const eyeCenterX = rect.left + (baseCx / 100) * rect.width;
                 const eyeCenterY = rect.top + (baseCy / 100) * rect.height;
-                
                 const dx = e.clientX - eyeCenterX;
                 const dy = e.clientY - eyeCenterY;
                 const angle = Math.atan2(dy, dx);
-                
                 const maxDist = 5; 
                 const px = baseCx + Math.cos(angle) * maxDist;
                 const py = baseCy + Math.sin(angle) * maxDist;
-                
                 pupil.setAttribute('cx', px);
                 pupil.setAttribute('cy', py);
             }
-            
             movePupil(leftEye, 35, 40);
             movePupil(rightEye, 65, 40);
         });
 
-        // --- Chick Click Message Logic ---
         function showChickMessage() {
             const msg = document.getElementById('chick-msg');
             msg.innerHTML = "please dont make me fried chick<br>click on the other button";
-            
-            // Keeps it visible if it was fading out
             msg.style.opacity = '1';
-            
-            // Hide after 3.5 seconds
-            setTimeout(() => {
-                msg.style.opacity = '0';
-            }, 3500);
+            setTimeout(() => { msg.style.opacity = '0'; }, 3500);
         }
 
-        // --- Original Site Logic ---
+        // --- Particles ---
         tsParticles.load("tsparticles", {
             background: { color: { value: "transparent" } },
             fpsLimit: 60,
             particles: {
                 color: { value: "#ffffff" },
-                links: { enable: false },
-                move: { direction: "none", enable: true, outModes: { default: "out" }, random: true, speed: 0.3, straight: false },
-                number: { density: { enable: true, area: 800 }, value: 80 },
-                opacity: { animation: { enable: true, speed: 0.5, minimumValue: 0.1 }, value: { min: 0.1, max: 0.4 } },
-                shape: { type: "circle" },
+                move: { enable: true, speed: 0.3 },
+                number: { value: 80 },
+                opacity: { value: { min: 0.1, max: 0.4 } },
                 size: { value: { min: 1, max: 2.5 } },
             },
-            detectRetina: true,
         });
 
-        const observerOptions = {
-            root: null,
-            rootMargin: '0px',
-            threshold: 0.1
-        };
-
-        const observer = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, observerOptions);
-
-        function initScrollAnimations() {
-            document.querySelectorAll('.reveal-on-scroll').forEach((el) => {
-                observer.observe(el);
-            });
-        }
-
+        // --- Navigation ---
         function nextPhase(currentId, nextId) {
             const current = document.getElementById(currentId);
             const next = document.getElementById(nextId);
-
-            if(currentId === 'phase-1') {
-                document.querySelector('.ambient-glow').style.opacity = '0';
-            }
-
-            current.style.opacity = '0';
+            if(currentId === 'phase-1') document.querySelector('.ambient-glow').style.opacity = '0';
             
+            current.style.opacity = '0';
             setTimeout(() => {
                 current.classList.remove('active');
                 next.classList.add('active');
                 void next.offsetWidth;
                 next.style.opacity = '1';
+                next.scrollTop = 0;
 
-                next.scrollTop = 0; 
-
-                if(nextId === 'phase-3') {
-                    initScrollAnimations();
+                if(nextId === 'phase-2') {
+                    video.muted = true;
+                    video.play();
                 }
+                if(nextId === 'phase-3') initScrollAnimations();
             }, 1000); 
         }
 
         function startMemoryJourney() {
             const audio = document.getElementById('bg-audio');
+            video.pause();
             audio.volume = 0.5;
-            audio.play().catch(e => console.log("Add a valid mp3 file to play background music."));
+            audio.play().catch(e => console.log("Audio trigger error"));
             nextPhase('phase-2', 'phase-3');
         }
 
+        // --- Scroll Reveal ---
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        function initScrollAnimations() {
+            document.querySelectorAll('.reveal-on-scroll').forEach((el) => observer.observe(el));
+        }
+
+        // --- Running No Button Logic ---
         const btnNo = document.getElementById('btn-no');
-        const btnYes = document.getElementById('btn-yes');
         const btnContainer = document.getElementById('button-container');
 
-        // New Running Away Logic
         btnNo.addEventListener('mouseover', () => {
-            // First time hovered, swap to absolute positioning so it breaks out of the flex container
-            if(btnNo.style.position !== 'absolute') {
-                btnNo.style.position = 'absolute';
-            }
-            
+            if(btnNo.style.position !== 'absolute') btnNo.style.position = 'absolute';
             const containerRect = btnContainer.getBoundingClientRect();
             const btnRect = btnNo.getBoundingClientRect();
-            
-            // Calculate maximum allowed X and Y coordinates within the container
             const maxX = containerRect.width - btnRect.width;
             const maxY = containerRect.height - btnRect.height;
-            
-            // Generate random positions ensuring it stays inside the boundary box
             const randomX = Math.max(0, Math.floor(Math.random() * maxX));
             const randomY = Math.max(0, Math.floor(Math.random() * maxY)); 
-            
             btnNo.style.left = `${randomX}px`;
             btnNo.style.top = `${randomY}px`;
         });
 
-        btnYes.addEventListener('click', () => {
+        // --- Yes Button Success ---
+        document.getElementById('btn-yes').addEventListener('click', () => {
             const proposalText = document.getElementById('proposal-text');
             const loveLetter = document.getElementById('love-letter');
-            
             btnContainer.style.display = 'none';
             proposalText.style.transition = "opacity 1.5s ease";
             proposalText.style.opacity = "0";
@@ -492,17 +471,10 @@
 
             var duration = 8 * 1000;
             var animationEnd = Date.now() + duration;
-            var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 };
-
-            function randomInRange(min, max) { return Math.random() * (max - min) + min; }
-
             var interval = setInterval(function() {
                 var timeLeft = animationEnd - Date.now();
                 if (timeLeft <= 0) return clearInterval(interval);
-
-                var particleCount = 50 * (timeLeft / duration);
-                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
-                confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+                confetti({ particleCount: 50, origin: { x: Math.random(), y: Math.random() - 0.2 } });
             }, 250);
         });
     </script>
