@@ -155,6 +155,33 @@
             border-style: solid;
             border-color: rgba(255, 255, 255, 0.9) transparent transparent transparent;
         }
+
+        /* Custom Play Button Styling */
+        .play-btn-circle {
+            width: 90px;
+            height: 90px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.2);
+        }
+        .play-btn-circle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+            box-shadow: 0 0 40px rgba(255, 255, 255, 0.4);
+        }
+        .play-icon {
+            margin-left: 8px;
+            width: 40px;
+            height: 40px;
+            fill: white;
+        }
     </style>
 </head>
 <body>
@@ -196,26 +223,24 @@
 
     <section id="phase-2" class="app-section flex-col justify-center items-center p-4">
         <h2 class="text-3xl font-light mb-8 tracking-widest text-white text-glow-subtle uppercase">Listen closely...</h2>
-        <div class="w-full max-w-3xl aspect-video bg-gray-900 border border-gray-700 rounded-xl shadow-[0_0_50px_rgba(0,0,0,0.8)] relative overflow-hidden mb-12 group">
+        
+        <div class="w-full max-w-3xl aspect-video bg-gray-900 border border-gray-700 rounded-xl shadow-[0_0_50px_rgba(0,0,0,0.8)] relative overflow-hidden mb-12">
             
-            <video id="memory-video" class="w-full h-full object-cover cursor-pointer" playsinline>
-                <source src="lv_0_20260410155506.mp4" type="video/mp4">
+            <video id="memory-video" class="w-full h-full object-cover" playsinline preload="metadata" controls>
+                <source src="your-video-file.mp4" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
 
-            <div id="video-overlay" class="absolute inset-0 bg-black/40 flex justify-center items-center z-30 cursor-pointer transition-opacity duration-300" onclick="playVideoWithSound()">
-                <div class="w-20 h-20 bg-white/20 backdrop-blur-md rounded-full flex justify-center items-center hover:bg-white/30 hover:scale-110 transition-all border border-white/30 shadow-[0_0_20px_rgba(255,255,255,0.2)]">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-1"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <div id="video-overlay" class="absolute inset-0 bg-black/50 flex justify-center items-center z-30" onclick="playCustomVideo()">
+                <div class="play-btn-circle">
+                    <svg viewBox="0 0 24 24" class="play-icon">
+                        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                    </svg>
                 </div>
             </div>
 
-            <button id="video-mute-btn" class="absolute bottom-4 right-4 bg-black/50 p-2 rounded-full text-white backdrop-blur-md border border-white/20 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" onclick="toggleMute()">
-                <svg id="mute-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
-                </svg>
-            </button>
-
         </div>
+
         <button class="glass-btn" onclick="startMemoryJourney()">Take My Hand</button>
     </section>
 
@@ -345,37 +370,6 @@
     </section>
 
     <script>
-        // --- Video and Controls ---
-        const video = document.getElementById('memory-video');
-        const overlay = document.getElementById('video-overlay');
-        const muteIcon = document.getElementById('mute-icon');
-
-        // Play video with sound when clicking the big play button overlay
-        function playVideoWithSound() {
-            video.muted = false; // Start with sound
-            video.play();
-            overlay.style.display = 'none'; // Hide the play button
-            
-            // Ensure mute icon shows "unmuted" state
-            muteIcon.innerHTML = `<path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>`;
-        }
-
-        // Allow pausing by clicking on the video directly
-        video.addEventListener('click', function() {
-            if (!this.paused) {
-                this.pause();
-                overlay.style.display = 'flex'; // Bring back the play button
-            }
-        });
-
-        // Toggle mute functionality
-        function toggleMute() {
-            video.muted = !video.muted;
-            muteIcon.innerHTML = video.muted ? 
-                `<path d="M11 5L6 9H2v6h4l5 4V5z"></path><line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>` : 
-                `<path d="M11 5L6 9H2v6h4l5 4V5z"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>`;
-        }
-
         // --- Chick Eye Tracking ---
         document.addEventListener('mousemove', (e) => {
             const leftEye = document.getElementById('pupil-left');
@@ -421,6 +415,26 @@
             },
         });
 
+        // --- Video Logic ---
+        function playCustomVideo() {
+            const video = document.getElementById('memory-video');
+            const overlay = document.getElementById('video-overlay');
+            
+            video.muted = false; // Start with sound
+            video.play();
+            overlay.style.display = 'none'; // Hide the play button
+        }
+
+        // Re-show play button if video is paused manually
+        document.getElementById('memory-video').addEventListener('pause', function() {
+            document.getElementById('video-overlay').style.display = 'flex';
+        });
+
+        document.getElementById('memory-video').addEventListener('play', function() {
+            document.getElementById('video-overlay').style.display = 'none';
+        });
+
+
         // --- Navigation ---
         function nextPhase(currentId, nextId) {
             const current = document.getElementById(currentId);
@@ -434,23 +448,20 @@
                 void next.offsetWidth;
                 next.style.opacity = '1';
                 next.scrollTop = 0;
-
-                // Make sure video is paused and reset when entering Phase 2
-                if(nextId === 'phase-2') {
-                    video.pause();
-                    video.currentTime = 0;
-                    overlay.style.display = 'flex'; // Ensure Play button is visible
-                }
                 
                 if(nextId === 'phase-3') initScrollAnimations();
             }, 1000); 
         }
 
         function startMemoryJourney() {
+            const video = document.getElementById('memory-video');
             const audio = document.getElementById('bg-audio');
+            
             video.pause(); // Pause video when leaving phase 2
+            
             audio.volume = 0.5;
             audio.play().catch(e => console.log("Audio trigger error"));
+            
             nextPhase('phase-2', 'phase-3');
         }
 
